@@ -42,7 +42,7 @@ reboot
 network --bootproto=dhcp
 
 # Root user password
-rootpw --plaintext ${var.secret-password}
+rootpw --plaintext ${var.alma_password}
 
 # SELinux configuration
 selinux --enforcing
@@ -52,7 +52,7 @@ skipx
 zerombr
 
 # Create new user
-user --name=${var.secret-username} --plaintext --password=${var.secret-password}
+user --name=${var.alma_username} --plaintext --password=${var.alma_password}
 
 # Services 
 services --enabled=NetworkManager,sshd,chronyd
@@ -76,7 +76,7 @@ repo --name=appstream --baseurl=http://ftp.sakura.ad.jp/almalinux/8.6/AppStream/
 }
 
 source "file" "almalinux-static-ks" {
-    target = "./http/almalinux-8-dhcp.ks"
+    target = "./http/almalinux-8-static.ks"
 
     content = <<EOF
 
@@ -112,10 +112,10 @@ lang en_US
 reboot
 
 # Network configuration
-network --bootproto=dhcp
+network --bootproto=static --device=link --activate --ip=${var.alma_hostname} --netmask=255.255.255.0 --gateway=172.24.133.1 --nameserver=8.8.8.8,8.8.4.4
 
 # Root user password
-rootpw --plaintext ${var.secret-password}
+rootpw --plaintext ${var.alma_password}
 
 # SELinux configuration
 selinux --enforcing
@@ -125,7 +125,7 @@ skipx
 zerombr
 
 # Create new user
-user --name=${var.secret-username} --plaintext --password=${var.secret-password}
+user --name=${var.alma_username} --plaintext --password=${var.alma_password}
 
 # Services 
 services --enabled=NetworkManager,sshd,chronyd
