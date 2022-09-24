@@ -1,0 +1,15 @@
+---
+# tasks file for ipsec
+- name: Install libreswan for ipsec VPN
+  ansible.builtin.dnf:
+    name: libreswan
+    state: latest
+  become: yes
+
+- name: Enable ipsec service and start it
+  ansible.builtin.service:
+    name: ipsec
+    enabled: true
+    state: started
+  become: yes
+

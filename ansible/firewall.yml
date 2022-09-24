@@ -1,0 +1,7 @@
+---
+- name: "firewall.yml" 
+  hosts: all
+  gather_facts: yes
+
+  roles:
+    - role: ipsec
