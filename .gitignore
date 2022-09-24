@@ -1,1 +1,9 @@
+# Secret files
 secrets.*
+
+# Terraform related files
+*.tfstate*
+
+# Tool generated directories
+.terraform*
+.vagrant*
