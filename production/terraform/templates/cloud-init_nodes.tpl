@@ -2,7 +2,7 @@
 network:
     version: 2
     ethernets:
-        ens160:
+        ens32:
             addresses: [${node_private_ipv4}]
             gateway4: ${gateway_ipv4}
             nameservers:
