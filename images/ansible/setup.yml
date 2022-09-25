@@ -1,7 +1,8 @@
 ---
 - name: "setup.yml"
-  hosts: all
+  hosts: 127.0.0.1
+  connection: local
   gather_facts: yes
 
   roles:
-    - role: "../../ansible/roles/almalinux-8-setup"
+    - role: almalinux-8-setup

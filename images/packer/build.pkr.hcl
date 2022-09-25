@@ -17,13 +17,24 @@ build {
         "vmware-iso.esxi-alma",
     ]
 
-    provisioner "ansible" {
-    
+    provisioner "shell" {
+        execute_command =  "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'"
+        inline = [
+            "yum -y install epel-release",
+            "yum -y update",
+            "yum -y install ansible"
+        ]
+    }
+
+    provisioner "ansible-local" {
         playbook_file = "../ansible/setup.yml"
-        use_proxy = false
-        extra_arguments = [
-            "--extra-vars", 
-            "ansible_user=${var.alma_username} ansible_password=${var.alma_password}"
+        role_paths = ["../../ansible/roles/almalinux-8-setup"]
+    }
+
+    provisioner "shell" {
+        execute_command =  "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'"
+        inline = [
+            "yum remove ansible -y"
         ]
     }
 
