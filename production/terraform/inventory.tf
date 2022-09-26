@@ -29,7 +29,7 @@ data "template_file" "ansible_nodes_host" {
 data "template_file" "ansible_skeleton" {
     
     template = file("${path.root}/templates/ansible_skeleton.tpl")
-    depends_on = [data.template_file.ansible_firewall_hosts, data.template_file.ansible_nodes_host]
+    depends_on = [data.template_file.ansible_firewall_host, data.template_file.ansible_nodes_host]
 
     vars = {
         firewall_host_def   = data.template_file.ansible_firewall_host.rendered
