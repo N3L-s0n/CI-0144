@@ -1,11 +1,19 @@
 ---
 # tasks file for sshd-config
-- name: Allow password auth
+- name: Allow password auth on sshd
   ansible.builtin.lineinfile:
     path: "/etc/ssh/sshd_config"
     regexp: '^PasswordAuthentication .*'
     line: 'PasswordAuthentication yes'
   become: yes
+
+- name: Allow password auth on cloud conf
+  ansible.builtin.lineinfile:
+    path: "/etc/cloud/cloud.cfg"
+    regexp: '^ssh_pwauth.*'
+    line: 'ssh_pwauth:   1'
+  become: yes
+  
 
 - name: sshd enabled
   ansible.builtin.service:
