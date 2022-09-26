@@ -3,7 +3,6 @@
 
 resource "esxi_guest" "firewall" {
 
-    count       = 1
     guest_name  = "firewall"
 
     ovf_source = "../../images/packer/vmware-esxi-alma/almalinux-8.vmx"
@@ -44,7 +43,7 @@ resource "esxi_guest" "firewall" {
 }
 
 resource "esxi_guest" "nodes" {
-    count       = 2
+    count       = length(var.nodes_private_ipv4)
     guest_name  = "node${count.index + 1}"
 
     ovf_source = "../../images/packer/vmware-esxi-alma/almalinux-8.vmx"

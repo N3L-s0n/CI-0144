@@ -13,7 +13,7 @@ data "template_file" "ansible_firewall_host" {
 
 data "template_file" "ansible_nodes_host" {
     
-    count = esxi_guest.nodes.count;
+    count = length(var.nodes_private_ipv4)
 
     template = file("${path.root}/templates/ansible_hosts.tpl")
     depends_on = [esxi_guest.nodes]
