@@ -28,7 +28,10 @@ build {
 
     provisioner "ansible-local" {
         playbook_file = "../ansible/setup.yml"
-        role_paths = ["../../ansible/roles/almalinux-8-setup"]
+        role_paths = [
+            "../../ansible/roles/almalinux-8-setup",
+            "../../ansible/roles/sshd-config"
+        ]
     }
 
     provisioner "shell" {

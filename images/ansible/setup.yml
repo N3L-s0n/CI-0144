@@ -6,3 +6,4 @@
 
   roles:
     - role: almalinux-8-setup
+    - role: sshd-config

@@ -7,3 +7,12 @@ secrets.*
 # Tool generated directories
 .terraform*
 .vagrant*
+
+# Artifacts directories
+boxes/
+http/
+virtualbox-dev-alma/
+vmware-esxi-alma/
+
+# Archimate Files
+*.archimate*
