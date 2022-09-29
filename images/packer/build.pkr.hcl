@@ -56,6 +56,7 @@ build {
 
     sources = [
         "virtualbox-iso.local-centos",
+        "vmware-iso.esxi-centos",
     ]
 
     provisioner "shell" {
