@@ -13,6 +13,8 @@ boxes/
 http/
 virtualbox-dev-alma/
 vmware-esxi-alma/
+virtualbox-dev-centos/
+vmware-esxi-centos/
 
 # Archimate Files
 *.archimate*

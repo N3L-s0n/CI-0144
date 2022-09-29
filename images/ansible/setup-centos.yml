@@ -1,0 +1,9 @@
+---
+- name: "setup.yml"
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: yes
+
+  roles:
+    - role: centos-7-setup
+    - role: sshd-config
