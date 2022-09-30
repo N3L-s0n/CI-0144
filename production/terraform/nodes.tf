@@ -5,9 +5,9 @@ resource "esxi_guest" "firewall" {
 
     guest_name  = "firewall"
 
-    ovf_source = "../../images/packer/vmware-esxi-alma/almalinux-8.vmx"
+    ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
 
-    numvcpus    = 2 
+    numvcpus    = 1 
     memsize     = 1024
 
     disk_store  = var.esxi_datastore
@@ -46,9 +46,9 @@ resource "esxi_guest" "nodes" {
     count       = length(var.nodes_private_ipv4)
     guest_name  = "node${count.index + 1}"
 
-    ovf_source = "../../images/packer/vmware-esxi-alma/almalinux-8.vmx"
+    ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
 
-    numvcpus    = 2 
+    numvcpus    = 1 
     memsize     = 1024
 
     disk_store  = var.esxi_datastore
