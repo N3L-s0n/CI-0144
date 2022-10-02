@@ -24,9 +24,12 @@
     mode: '0644'
   become: yes
 
+# THIS WILL BLOCK. RUN LAST AND MOVE ON
 - name: Run setkey with conf file
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: 'setkey -f /etc/setkey.conf'
   become: yes
+  ansync: 10
+  poll: 0
 
 
