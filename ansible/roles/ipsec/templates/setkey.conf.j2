@@ -10,10 +10,10 @@ spdflush;
 {%      set endpoint = tunnel[int] %}
 
 add {{ endpoint['left']['ipv4'] }} {{ endpoint['right']['ipv4'] }} esp {{ endpoint['left']['id'] }} -m tunnel -E 3des-cbc
-{{ endpoint['left']['key'];
+{{ endpoint['left']['key'] }};
 
 add {{ endpoint['right']['ipv4'] }} {{ endpoint['left']['ipv4'] }} esp {{ endpoint['right']['id'] }} -m tunnel -E 3des-cbc
-{{ endpoint['right']['key'];
+{{ endpoint['right']['key'] }};
 
 {%  endfor %}
 
