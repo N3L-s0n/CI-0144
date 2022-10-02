@@ -1,0 +1,30 @@
+#!/usr/sbin/setkey -f
+
+# Flush the SAD and SPD
+flush;
+spdflush;
+
+# AH SAs using 128 bit long keys
+
+{%  for int in tunnel %}
+{%      set endpoint = tunnel[int] %}
+
+add {{ endpoint['left']['ipv4'] }} {{ endpoint['right']['ipv4'] }} esp {{ endpoint['left']['id'] }} -m tunnel -E 3des-cbc
+{{ endpoint['left']['key'];
+
+add {{ endpoint['right']['ipv4'] }} {{ endpoint['left']['ipv4'] }} esp {{ endpoint['right']['id'] }} -m tunnel -E 3des-cbc
+{{ endpoint['right']['key'];
+
+{%  endfor %}
+
+
+# Security Policies
+{%  for int in tunnel %}
+{%      set endpoint = tunnel[int] %} 
+
+spdadd {{ endpoint['left']['ipv4'] }}/32 {{ endpoint['right']['ipv4'] }}/32 any -P in ipsec
+        esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
+spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['left']['ipv4'] }}/32 any -P in ipsec
+        esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
+
+{%  endfor %}

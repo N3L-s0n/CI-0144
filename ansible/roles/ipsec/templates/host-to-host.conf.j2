@@ -1,0 +1,11 @@
+conn mytunnel
+    leftid=@west
+    left={{ hostvars[groups.left[0]]['ansible_default_ipv4']['address']}}
+    leftrsasigkey={{ hostvars[groups.left[0]].leftrsasigkey }}
+
+    rightid=@east
+    right={{ hostvars[groups.right[0]]['ansible_default_ipv4']['address']}}
+    rightrsasigkey={{ hostvars[groups.right[0]].rightrsasigkey }}
+
+    authby=rsasig
+

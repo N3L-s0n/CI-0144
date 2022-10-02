@@ -37,11 +37,42 @@ data "template_file" "ansible_skeleton" {
     }
 }
 
+data "template_file" "variables_skeleton" {
+    
+    template = file("${path.root}/templates/ansible_variables.tpl")
+    depends_on = [resource.esxi_guest.firewall]
+    
+    vars = {
+        my_ipv4             = esxi_guest.firewall.ip_address
+
+        serenity_ipv4       = "172.24.133.13"
+        serenity_left_key   = var.serenity_left_key
+        serenity_right_key  = var.serenity_right_key
+
+        sputnik_ipv4        = "172.24.133.8"
+        sputnik_left_key    = var.sputnik_left_key
+        sputnik_right_key   = var.sputnik_right_key
+
+        bastion_ipv4        = "172.24.131.43"
+        bastion_left_key    = var.bastion_left_key
+        bastion_right_key   = var.bastion_right_key
+    }
+}
+
 resource "local_file" "ansible_inventory" {
     
     depends_on = [data.template_file.ansible_skeleton]
 
     content = data.template_file.ansible_skeleton.rendered
     filename = "${path.root}/inventory"
+    file_permission = "0666"
+}
+
+resource "local_file" "ansible_variables" {
+    
+    depends_on = [data.template_file.variables_skeleton]
+
+    content = data.template_file.variables_skeleton.rendered
+    filename = "${path.root}/variables.yml"
     file_permission = "0666"
 }

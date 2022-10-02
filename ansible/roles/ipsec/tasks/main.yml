@@ -1,15 +1,31 @@
 ---
 # tasks file for ipsec
-- name: Install libreswan for ipsec VPN
-  ansible.builtin.dnf:
-    name: libreswan
-    state: latest
+- name: Install IPsec Tools
+  block:
+    - name: Install epel repo
+      ansible.builtin.yum:
+        name: epel-release
+        state: latest
+
+    - name: Update yum
+      ansible.builtin.command:
+        cmd: yum -y update
+
+    - name: Install ipsec-tools
+      ansible.builtin.yum:
+        name: ipsec-tools
+        state: latest
   become: yes
 
-- name: Enable ipsec service and start it
-  ansible.builtin.service:
-    name: ipsec
-    enabled: true
-    state: started
+- name: Write ipsec conf file
+  ansible.builtin.template:
+    src: 'setkey.conf.j2'
+    dest: '/etc/setkey.conf'
+    mode: '0644'
   become: yes
+
+- name: Run setkey with conf file
+  ansible.builtin.command:
+    cmd: setkey -f /etc/setkey.conf
+
 
