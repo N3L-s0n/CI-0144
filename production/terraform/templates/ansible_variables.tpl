@@ -27,6 +27,6 @@ tunnel:
         key:  "${bastion_left_key}"
         id:   "0x902"
     right:
-        ipv4: "${my-ipv4}"
+        ipv4: "${my_ipv4}"
         key:  "${bastion_right_key}"
         id:   "0x901"

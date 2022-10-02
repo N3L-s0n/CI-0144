@@ -1,6 +1,6 @@
 ---
 - name: "firewall.yml" 
-  hosts: all
+  hosts: firewall
   gather_facts: yes
 
   roles:
