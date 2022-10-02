@@ -26,6 +26,7 @@
 
 - name: Run setkey with conf file
   ansible.builtin.command:
-    cmd: setkey -f /etc/setkey.conf
+    cmd: 'setkey -f /etc/setkey.conf'
+  become: yes
 
 

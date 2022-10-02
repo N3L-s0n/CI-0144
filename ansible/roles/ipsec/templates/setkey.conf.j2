@@ -24,7 +24,7 @@ add {{ endpoint['right']['ipv4'] }} {{ endpoint['left']['ipv4'] }} esp {{ endpoi
 
 spdadd {{ endpoint['left']['ipv4'] }}/32 {{ endpoint['right']['ipv4'] }}/32 any -P in ipsec
         esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
-spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['left']['ipv4'] }}/32 any -P in ipsec
+spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['left']['ipv4'] }}/32 any -P out ipsec
         esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
 
 {%  endfor %}
