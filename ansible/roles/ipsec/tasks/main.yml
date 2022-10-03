@@ -29,7 +29,7 @@
   ansible.builtin.shell:
     cmd: 'setkey -f /etc/setkey.conf'
   become: yes
-  ansync: 10
+  async: 10
   poll: 0
 
 

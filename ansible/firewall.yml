@@ -7,6 +7,12 @@
     - name: set ipsec facts
       ansible.builtin.set_fact:
         ipsec: "{{ tunnel }}"
+
+    - name: install tcpdump
+      ansible.builtin.yum:
+        name: tcpdump
+        state: latest
+      become: yes
   
   roles:
     - role: ipsec
@@ -18,5 +24,12 @@
     - name: set ipsec facts
       ansible.builtin.set_fact:
         ipsec: "{{ ipsec | default({ 'bastion' : tunnel['bastion'] }) }}"
+
+    - name: install tcpdump
+      ansible.builtin.yum:
+        name: tcpdump
+        state: latest
+      become: yes
+
   roles:
     - role: ipsec
