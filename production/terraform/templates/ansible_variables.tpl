@@ -31,7 +31,7 @@ tunnel:
         key:  "${bastion_right_key}"
         id:   "0x901"
 
-  subnets:
+subnets:
 %{ for subnet in my_subnets ~}
     -"${subnet}" 
 %{ endfor ~}
