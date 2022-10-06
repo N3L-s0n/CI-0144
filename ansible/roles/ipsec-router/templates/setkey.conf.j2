@@ -33,7 +33,7 @@ spdadd {{ subnet }}-endpoint['left']/32 any -P out ipsec
         esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
 
 spdadd endpoint['left']/32-{{ subnet }} any -P in ipsec
-        esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
+        esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
 {%      endfor %}
 
 {%  endfor %}

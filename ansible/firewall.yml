@@ -8,6 +8,10 @@
       ansible.builtin.set_fact:
         ipsec: "{{ tunnel }}"
 
+    - name: set subnets facts
+      ansible.builtin.set_fact:
+        subnets: "{{ tunnel['subnets'] }}"
+
     - name: install tcpdump
       ansible.builtin.yum:
         name: tcpdump

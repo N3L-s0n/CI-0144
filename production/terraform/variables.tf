@@ -44,7 +44,7 @@ variable "firewall_gateway_ipv4" {
 
 variable "firewall_subnets" {
     type = list(string)
-    default = ["192.168.24.0/10"]
+    default = ["192.168.24.0/24"]
 }
 # ====================================
 
