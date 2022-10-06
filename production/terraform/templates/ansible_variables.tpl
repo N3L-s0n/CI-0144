@@ -33,5 +33,5 @@ tunnel:
 
 subnets:
 %{ for subnet in my_subnets ~}
-    -"${subnet}" 
+    - "${subnet}" 
 %{ endfor ~}
