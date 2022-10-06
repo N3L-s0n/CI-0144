@@ -15,7 +15,18 @@
       become: yes
   
   roles:
-    - role: ipsec
+    - role: ipsec-router
+
+  post_tasks:
+    - name: Enable IPv4 forwarding
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+      become: yes
+
 
 - hosts: localhost
   connection: local
@@ -32,4 +43,4 @@
       become: yes
 
   roles:
-    - role: ipsec
+    - role: ipsec-host

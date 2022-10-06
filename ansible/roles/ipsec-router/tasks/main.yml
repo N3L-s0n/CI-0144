@@ -1,0 +1,35 @@
+---
+# tasks file for ipsec
+- name: Install IPsec Tools
+  block:
+    - name: Install epel repo
+      ansible.builtin.yum:
+        name: epel-release
+        state: latest
+
+    - name: Update yum
+      ansible.builtin.command:
+        cmd: yum -y update
+
+    - name: Install ipsec-tools
+      ansible.builtin.yum:
+        name: ipsec-tools
+        state: latest
+  become: yes
+
+- name: Write ipsec conf file
+  ansible.builtin.template:
+    src: 'setkey.conf.j2'
+    dest: '/etc/setkey.conf'
+    mode: '0644'
+  become: yes
+
+# THIS WILL BLOCK. RUN LAST AND MOVE ON
+- name: Run setkey with conf file
+  ansible.builtin.shell:
+    cmd: 'setkey -f /etc/setkey.conf'
+  become: yes
+  async: 10
+  poll: 0
+
+

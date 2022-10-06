@@ -44,6 +44,7 @@ data "template_file" "variables_skeleton" {
     
     vars = {
         my_ipv4             = esxi_guest.firewall.ip_address
+        my_subnets          = var.subnets
 
         serenity_ipv4       = "172.24.133.13"
         serenity_left_key   = var.serenity_left_key

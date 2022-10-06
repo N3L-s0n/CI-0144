@@ -30,3 +30,5 @@ tunnel:
         ipv4: "${my_ipv4}"
         key:  "${bastion_right_key}"
         id:   "0x901"
+
+  subnets: "${my_subnets}"
