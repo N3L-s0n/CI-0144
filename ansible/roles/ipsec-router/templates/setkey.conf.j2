@@ -29,10 +29,10 @@ spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['left']['ipv4'] }}/32 any 
         esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
 
 {%      for subnet in subnets %}
-spdadd {{ subnet }}-endpoint['left']/32 any -P out ipsec
+spdadd {{ subnet }}-{{ endpoint['left'] }}/32 any -P out ipsec
         esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
 
-spdadd endpoint['left']/32-{{ subnet }} any -P in ipsec
+spdadd {{ endpoint['left'] }}/32-{{ subnet }} any -P in ipsec
         esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
 {%      endfor %}
 
