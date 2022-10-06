@@ -22,12 +22,25 @@ add {{ endpoint['right']['ipv4'] }} {{ endpoint['left']['ipv4'] }} esp {{ endpoi
 {%  for int in ipsec %}
 {%      set endpoint = ipsec[int] %} 
 
+# Router-to-router
 spdadd {{ endpoint['left']['ipv4'] }}/32 {{ endpoint['right']['ipv4'] }}/32 any -P in ipsec
         esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
         
 spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['left']['ipv4'] }}/32 any -P out ipsec
         esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
 
+# Router-to-subnet
+{%      if endpoint['subnet'] is defined %}
+
+spdadd {{ endpoint['subnet'] }} {{ endpoint['right']['ipv4'] }}/32 any -P in ipsec
+        esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
+        
+spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['subnet'] }} any -P out ipsec
+        esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
+
+{%      endif %}
+
+# subnet-to-Router
 {%      for subnet in subnets %}
 spdadd {{ subnet }} {{ endpoint['left']['ipv4'] }}/32 any -P out ipsec
         esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
@@ -35,5 +48,16 @@ spdadd {{ subnet }} {{ endpoint['left']['ipv4'] }}/32 any -P out ipsec
 spdadd {{ endpoint['left']['ipv4'] }}/32 {{ subnet }} any -P in ipsec
         esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
 {%      endfor %}
+
+# subnet-to-subnet
+{%          if endpoint['subnet'] is defined %}
+
+spdadd {{ endpoint['subnet'] }} {{ subnet }} any -P in ipsec
+        esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
+        
+spdadd {{ subnet }} {{ endpoint['subnet'] }} any -P out ipsec
+        esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
+
+{%          endif %}
 
 {%  endfor %}

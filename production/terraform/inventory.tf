@@ -55,10 +55,12 @@ resource "local_file" "ansible_variables" {
         my_subnets          = var.firewall_subnets,
 
         serenity_ipv4       = "172.24.133.13",
+        serenity_subnet     = "192.168.13.0/24",
         serenity_left_key   = var.serenity_left_key,
         serenity_right_key  = var.serenity_right_key,
 
         sputnik_ipv4        = "172.24.133.8",
+        sputnik_subnet      = "192.168.8.0/24",
         sputnik_left_key    = var.sputnik_left_key,
         sputnik_right_key   = var.sputnik_right_key,
 

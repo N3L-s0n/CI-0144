@@ -10,6 +10,7 @@ tunnel:
         ipv4: "${my_ipv4}"
         key:  "${serenity_right_key}"
         id:   "0x202"
+    subnet: "${serenity_subnet}"
 
   sputnik:
     left:
@@ -20,6 +21,7 @@ tunnel:
         ipv4: "${my_ipv4}"
         key:  "${sputnik_right_key}"
         id:   "0x401"
+    subnet: "${sputnik_subnet}"
 
   bastion:
     left:
