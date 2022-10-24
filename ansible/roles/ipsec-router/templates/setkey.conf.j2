@@ -29,8 +29,8 @@ spdadd {{ endpoint['left']['ipv4'] }}/32 {{ endpoint['right']['ipv4'] }}/32 any 
 spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['left']['ipv4'] }}/32 any -P out ipsec
         esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
 
-# Router-to-subnet
 {%      if endpoint['subnet'] is defined %}
+# Router-to-subnet
 
 spdadd {{ endpoint['subnet'] }} {{ endpoint['right']['ipv4'] }}/32 any -P in ipsec
         esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
@@ -40,8 +40,8 @@ spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['subnet'] }} any -P out ip
 
 {%      endif %}
 
-# subnet-to-Router
 {%      for subnet in subnets %}
+# subnet-to-Router
 spdadd {{ subnet }} {{ endpoint['left']['ipv4'] }}/32 any -P out ipsec
         esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
 
@@ -49,6 +49,7 @@ spdadd {{ endpoint['left']['ipv4'] }}/32 {{ subnet }} any -P in ipsec
         esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
 
 {%          if endpoint['subnet'] is defined %}
+# subnet-to-subnet
 
 spdadd {{ endpoint['subnet'] }} {{ subnet }} any -P in ipsec
         esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
@@ -58,6 +59,4 @@ spdadd {{ subnet }} {{ endpoint['subnet'] }} any -P out ipsec
 
 {%          endif %}
 {%      endfor %}
-
-# subnet-to-subnet
 {%  endfor %}
