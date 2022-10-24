@@ -3,6 +3,7 @@ secrets.*
 
 # Terraform related files
 *.tfstate*
+production/terraform/variables.yml
 
 # Tool generated directories
 .terraform*
@@ -19,3 +20,6 @@ vmware-esxi-centos/
 
 # Archimate Files
 *.archimate*
+
+# tcpdump files
+*.pcap
