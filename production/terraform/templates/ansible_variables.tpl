@@ -1,39 +1,60 @@
----
-# vars file for ipsec
-tunnel:
-  serenity:
-    left:
-        ipv4: "${serenity_ipv4}"
-        key:  "${serenity_left_key}"
-        id:   "0x201"
-    right:
-        ipv4: "${my_ipv4}"
-        key:  "${serenity_right_key}"
-        id:   "0x202"
-    subnet: "${serenity_subnet}"
+--- # vars file for ipsec tunnel:
 
-  sputnik:
-    left:
-        ipv4: "${sputnik_ipv4}"
-        key:  "${sputnik_left_key}"
-        id:   "0x402"
-    right:
-        ipv4: "${my_ipv4}"
-        key:  "${sputnik_right_key}"
-        id:   "0x401"
-    subnet: "${sputnik_subnet}"
+%{~ for datacenter in apollo_tunnel ~}
+    ${ datacenter.name }:
+        mine:
+        %{~ for key, value in datacenter.mine ~}
+            %{~ if key != "network" ~}
+            ${ key }: ${ value } 
+            %{~ else ~} 
+            %{~ if length(value) != 0 ~}
+            ${ key }:
+            %{~ for item in value ~}
+                - ${ item }
+            %{~ endfor}
+            %{~ endif ~}
+            %{~ endif ~}
+        %{~ endfor ~}
+        theirs:
+        %{~ for key, value in datacenter.theirs ~}
+            %{~ if key != "network" ~}
+            ${ key }: ${ value } 
+            %{~ else ~} 
+            %{~ if length(value) != 0 ~}
+            ${ key }:
+            %{~ for item in value ~}
+                - ${ item }
+            %{~ endfor}
+            %{~ endif ~}
+            %{~ endif ~}
+        %{~ endfor ~}
+%{~ endfor ~}
 
-  bastion:
-    left:
-        ipv4: "${bastion_ipv4}"
-        key:  "${bastion_left_key}"
-        id:   "0x902"
-    right:
-        ipv4: "${my_ipv4}"
-        key:  "${bastion_right_key}"
-        id:   "0x901"
+networks:
+  - name: "wan"
+    type: "public"
+    ipv4: "${wan_network}"
+    prefix: "24"
 
-subnets:
-%{ for subnet in my_subnets ~}
-    - "${subnet}" 
-%{ endfor ~}
+    forward_from: # FORWARD TO WAN
+      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "any", "dest_port" : "80"}
+      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "any", "dest_port" : "443"}
+  
+
+  - name: "lan"
+    type: "private"
+    ipv4: "${lan_network}"
+    prefix: "24"
+
+    forward_from: # FORWARD TO LAN
+      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "80"}
+      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "443"}
+      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "3306"}
+      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "4567"}
+      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "4568"}
+      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "4444"}
+
+  - name: "dmz"
+    type: "public"
+    ipv4: "${dmz_network}"
+    prefix: "24"

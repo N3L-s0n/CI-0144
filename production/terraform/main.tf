@@ -50,7 +50,7 @@ resource "esxi_portgroup" "wan" {
 }
 # ======================================================
 
-# NETWORK: LAN 192.168.24.0 - 192.168.27.0 / 24 ========
+# NETWORK: LAN 192.168.24.0/24 =========================
 resource "esxi_vswitch" "lan" {
     
     name = "vSwitchLAN"
@@ -60,5 +60,18 @@ resource "esxi_portgroup" "lan" {
 
     name = "LAN"
     vswitch = esxi_vswitch.lan.name 
+}
+# ======================================================
+
+# NETWORK: DMZ 192.168.25.0/24 =========================
+resource "esxi_vswitch" "dmz" {
+    
+    name = "vSwitchDMZ"
+}
+
+resource "esxi_portgroup" "dmz" {
+
+    name = "DMZ"
+    vswitch = esxi_vswitch.dmz.name 
 }
 # ======================================================

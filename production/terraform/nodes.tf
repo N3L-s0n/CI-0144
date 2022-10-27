@@ -20,11 +20,16 @@ resource "esxi_guest" "firewall" {
         virtual_network = esxi_portgroup.lan.name
     }
 
+    network_interfaces {
+        virtual_network = esxi_portgroup.dmz.name
+    }
+
     guestinfo = {
         "metadata" = base64gzip(templatefile("templates/cloud-init_firewall.tpl", 
                     {
                         "firewall_public_ipv4"  = var.firewall_public_ipv4,
                         "firewall_private_ipv4" = var.firewall_private_ipv4,
+                        "firewall_dmz_ipv4"     = var.firewall_dmz_ipv4,
                         "firewall_gateway_ipv4" = var.firewall_gateway_ipv4
                     }))
         "metadata.encoding" = "gzip+base64"
@@ -36,9 +41,59 @@ resource "esxi_guest" "firewall" {
         connection {
             host        = self.ip_address
             type        = "ssh"
-            user        = var.alma_username
-            password    = var.alma_password
+            user        = var.centos_username
+            password    = var.centos_password
         }
+    }
+}
+
+resource "esxi_guest" "dns_server" {
+
+    guest_name =  "dns"
+
+    ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
+
+    numvcpus    = 1 
+    memsize     = 1024
+
+    disk_store  = var.esxi_datastore
+
+    network_interfaces {
+        virtual_network = esxi_portgroup.dmz.name
+    }
+
+    guestinfo = {
+        "metadata" = base64gzip(templatefile("templates/cloud-init_nodes.tpl",
+                    {
+                        "node_private_ipv4" = var.dns_ipv4,
+                        "gateway_ipv4"      = var.firewall_dmz_ipv4
+                    }))
+        "metadata.encoding" = "gzip+base64"
+    }
+}
+
+resource "esxi_guest" "dhcp_servers" {
+    count       = length(var.dhcps_ipv4)
+    guest_name  = "dhcp${count.index + 1}"
+
+    ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
+
+    numvcpus    = 1 
+    memsize     = 1024
+
+    disk_store  = var.esxi_datastore
+
+    network_interfaces {
+        virtual_network = esxi_portgroup.lan.name
+    }
+
+    guestinfo = {
+        "metadata" = base64gzip(templatefile("templates/cloud-init_nodes.tpl",
+                    {
+                        "node_private_ipv4" = element(var.dhcps_ipv4, count.index),
+                        "gateway_ipv4"      = var.firewall_private_ipv4
+                    }))
+        "metadata.encoding" = "gzip+base64"
     }
 }
 
