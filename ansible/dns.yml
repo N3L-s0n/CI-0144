@@ -1,0 +1,6 @@
+---
+- name: "dns.yml"
+  hosts: dns
+  roles:
+    - role: dns-bind
+      become: yes

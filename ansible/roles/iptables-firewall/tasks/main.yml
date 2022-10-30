@@ -45,6 +45,102 @@
       ansible.builtin.command:
         cmd: "iptables -A FORWARD --match policy --pol ipsec --dir out --proto esp -j ACCEPT"
 
+- name: Allow lan to use DNS on DMZ
+  block:
+    - name: Forward UDP DNS from lan to DMZ 
+      ansible.builtin.iptables:
+        chain: FORWARD
+        protocol: udp
+        in_interface: "{{ item[0].interface }}"
+        out_interface: "{{ item[1].interface }}"
+        destination_port: 53
+        ctstate: NEW
+        jump: ACCEPT
+      with_nested:
+        - '{{ fnetworks | community.general.json_query("[?name==`lan`]") }}'
+        - '{{ fnetworks | community.general.json_query("[?name==`dmz`]")}}'
+
+- name: Allow wan to use DNS on DMZ
+  block:
+    - name: Forward UDP DNS from lan to DMZ 
+      ansible.builtin.iptables:
+        chain: FORWARD
+        protocol: udp
+        in_interface: "{{ item[0].interface }}"
+        out_interface: "{{ item[1].interface }}"
+        destination_port: 53
+        ctstate: NEW
+        jump: ACCEPT
+      with_nested:
+        - '{{ fnetworks | community.general.json_query("[?name==`wan`]") }}'
+        - '{{ fnetworks | community.general.json_query("[?name==`dmz`]")}}'
+
+- name: Allow private networks to INTERNET
+  block:
+  - name: Allow forward ping request 
+    ansible.builtin.iptables:
+      chain: FORWARD
+      protocol: icmp
+      icmp_type: echo-request
+      jump: ACCEPT
+      in_interface: "{{ item[0].interface }}"
+      out_interface: "{{ item[1].interface }}"
+      comment: Accept outgoing forward ping from private networks
+    with_nested:
+      - '{{ fnetworks | community.general.json_query("[?type==`private`]") }}'
+      - '{{ fnetworks | community.general.json_query("[?name==`wan`]")}}'
+
+  - name: Forward new packets on UDP port 53 (DNS)
+    ansible.builtin.iptables:
+      chain: FORWARD
+      protocol: udp
+      destination_port: 53
+      in_interface: "{{ item[0].interface }}"
+      out_interface: "{{ item[1].interface }}"
+      ctstate: NEW
+      jump: ACCEPT
+    with_nested:
+      - '{{ fnetworks | community.general.json_query("[?type==`private`]") }}'
+      - '{{ fnetworks | community.general.json_query("[?name==`wan`]")}}'
+
+  - name: Forward new packets for HTTP (80)
+    ansible.builtin.iptables:
+      chain: FORWARD
+      protocol: tcp
+      destination_port: 80
+      in_interface: "{{ item[0].interface }}"
+      out_interface: "{{ item[1].interface }}"
+      ctstate: NEW
+      syn: match
+      jump: ACCEPT
+    with_nested:
+      - '{{ fnetworks | community.general.json_query("[?type==`private`]") }}'
+      - '{{ fnetworks | community.general.json_query("[?name==`wan`]")}}'
+
+  - name: Forward new packets for HTTPS (443)
+    ansible.builtin.iptables:
+      chain: FORWARD
+      protocol: tcp
+      destination_port: 443
+      in_interface: "{{ item[0].interface }}"
+      out_interface: "{{ item[1].interface }}"
+      ctstate: NEW
+      syn: match
+      jump: ACCEPT
+    with_nested:
+      - '{{ fnetworks | community.general.json_query("[?type==`private`]") }}'
+      - '{{ fnetworks | community.general.json_query("[?name==`wan`]")}}'
+
+  - name: Nat private and DMZ networks
+    ansible.builtin.iptables:
+      table: nat
+      chain: POSTROUTING
+      source: "{{ item[0].ipv4 }}/{{ item[0].prefix }}"
+      out_interface: "{{ item[1].interface }}"
+      jump: MASQUERADE
+    with_nested:
+      - '{{ fnetworks | community.general.json_query("[?type==`private`]") }}'
+      - '{{ fnetworks | community.general.json_query("[?name==`wan`]")}}'
 
 # Save rules
 - name: Save iptables in /etc/sysconfig/iptables

@@ -1,0 +1,66 @@
+---
+# tasks file for dns-bind role
+- name: Install bind and bind-utils
+  ansible.builtin.yum:
+    name: '{{ item }}'
+    state: latest
+  with_items:
+    - bind
+    - bind-utils
+  tags:
+    - never
+
+- name: Stop DNS service
+  ansible.builtin.service:
+    name: named
+    state: stopped
+
+- name: Write BIND named configuration file
+  ansible.builtin.template:
+    src: 'named.conf.j2'
+    dest: '/etc/named.conf'
+
+- name: Write Apollo144 zone file
+  ansible.builtin.template:
+    src: 'apollo144.zone'
+    dest: '/var/named/apollo144.zone'
+
+- name: Enable DNS service
+  ansible.builtin.service:
+    name: named
+    enabled: yes
+
+- name: Start DNS service
+  ansible.builtin.service:
+    name: named
+    state: started
+
+- name: Configure firewall TCP 53
+  ansible.builtin.command:
+    cmd: "firewall-cmd --permanent --add-port=53/tcp"
+
+- name: Configure firewall UDP 53
+  ansible.builtin.command:
+    cmd: "firewall-cmd --permanent --add-port=53/udp"
+
+- name: Reload firewall
+  ansible.builtin.command:
+    cmd: "firewall-cmd --reload"
+
+- name: Configure Permissions
+  block:
+    - name: Change group
+      ansible.builtin.command:
+        cmd: "chgrp named -R /var/named"
+    
+    - name: Change user
+      ansible.builtin.command:
+        cmd: "chown -v root:named /etc/named.conf"
+
+    - name: Restore configuration for bind directory
+      ansible.builtin.command:
+        cmd: "restorecon -rv /var/named"
+
+    - name: Restore configuration bind conf
+      ansible.builtin.command:
+        cmd: "restorecon /etc/named.conf"

@@ -1,0 +1,13 @@
+$TTL    604800
+@       IN      SOA     ns1.nyc3.example.com. admin.nyc3.example.com. (
+                  3     ; Serial
+             604800     ; Refresh
+              86400     ; Retry
+            2419200     ; Expire
+             604800 )   ; Negative Cache TTL
+;
+; name servers - NS records
+     IN      NS      ns1.apollo144.com.
+
+; name servers - A records
+ns1.apollo144.com.          IN      A       192.168.25.10
