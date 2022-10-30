@@ -1,0 +1,67 @@
+---
+# tasks file for iptables-firewall role
+- name: Add Interfaces to networks list
+  ansible.builtin.set_fact:
+    fnetworks : '{{ fnetworks | default([]) + [ item[0] | combine ( { "interface" : item[1] } ) ] }}'
+  with_nested: 
+    - '{{ networks }}'
+    - '{{ ansible_interfaces }}'
+  when: 
+    "item[0].ipv4 == hostvars[inventory_hostname]['ansible_' ~ item[1]]['ipv4']['network']"
+
+- name: Print interfaces
+  ansible.builtin.debug:
+    msg: "{{ fnetworks }}"
+
+- name: iptables rules for IPSEC VPN tunnel
+  block:
+    - name: Allow input on ports 500 and 4500
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: udp
+        destination_port: "{{ item }}"
+        ctstate: NEW
+        jump: ACCEPT
+      with_items: [ 500, 4500 ]
+
+    - name: Allow output on ports 500 and 4500
+      ansible.builtin.iptables:
+        chain: OUTPUT
+        protocol: udp
+        destination_port: "{{ item }}"
+        ctstate: NEW
+        jump: ACCEPT
+      with_items: [ 500, 4500 ]
+
+    - name: Allow ESP encrypted data packets
+      ansible.builtin.command:
+        cmd: "iptables -A INPUT -p esp -j ACCEPT"
+
+    - name: Forward ESP ipsec policy IN
+      ansible.builtin.command:
+        cmd: "iptables -A FORWARD --match policy --pol ipsec --dir in  --proto esp -j ACCEPT"
+
+    - name: Forward ESP ipsec policy OUT
+      ansible.builtin.command:
+        cmd: "iptables -A FORWARD --match policy --pol ipsec --dir out --proto esp -j ACCEPT"
+
+
+# Save rules
+- name: Save iptables in /etc/sysconfig/iptables
+  ansible.builtin.command:
+    cmd: service iptables save
+  become: yes
+
+- name: Save configuration in root dir
+  ansible.builtin.shell:
+    cmd: iptables-save > /root/ipt.save
+
+- name: Restart iptables service
+  ansible.builtin.service:
+    name: iptables
+    state: restarted
+
+- name: Enable iptables service
+  ansible.builtin.service:
+    name: iptables
+    enabled: true

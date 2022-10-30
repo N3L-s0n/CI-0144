@@ -1,0 +1,40 @@
+---
+- name: "setup.yml" 
+  hosts: firewall
+  gather_facts: yes
+
+  pre_tasks:
+    - name: set ipsec facts
+      ansible.builtin.set_fact:
+        ipsec: "{{ tunnel }}"
+
+    - name: install tcpdump
+      ansible.builtin.yum:
+        name: tcpdump
+        state: latest
+      become: yes
+
+    - name: Enable IPv4 forwarding
+      ansible.builtin.shell:
+        cmd: "echo 1 > /proc/sys/net/ipv4/ip_forward"
+      become: yes
+  
+  roles:
+    - role: ipsec-router
+
+- hosts: localhost
+  connection: local
+
+  pre_tasks:
+    - name: set ipsec facts
+      ansible.builtin.set_fact:
+        ipsec: "{{ ipsec | default({ 'bastion' : tunnel['bastion'] }) }}"
+
+    - name: install tcpdump
+      ansible.builtin.yum:
+        name: tcpdump
+        state: latest
+      become: yes
+
+  roles:
+    - role: ipsec-host

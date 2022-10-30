@@ -1,16 +1,17 @@
 --- # vars file for ipsec tunnel:
+tunnel:
 
 %{~ for datacenter in apollo_tunnel ~}
     ${ datacenter.name }:
         mine:
         %{~ for key, value in datacenter.mine ~}
             %{~ if key != "network" ~}
-            ${ key }: ${ value } 
+            ${ key }: "${ value }"
             %{~ else ~} 
             %{~ if length(value) != 0 ~}
             ${ key }:
             %{~ for item in value ~}
-                - ${ item }
+                - "${ item }"
             %{~ endfor}
             %{~ endif ~}
             %{~ endif ~}
@@ -18,12 +19,12 @@
         theirs:
         %{~ for key, value in datacenter.theirs ~}
             %{~ if key != "network" ~}
-            ${ key }: ${ value } 
+            ${ key }: "${ value }"
             %{~ else ~} 
             %{~ if length(value) != 0 ~}
             ${ key }:
             %{~ for item in value ~}
-                - ${ item }
+                - "${ item }"
             %{~ endfor}
             %{~ endif ~}
             %{~ endif ~}

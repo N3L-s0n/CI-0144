@@ -9,54 +9,67 @@ spdflush;
 {%  for int in ipsec %}
 {%      set endpoint = ipsec[int] %}
 
-add {{ endpoint['left']['ipv4'] }} {{ endpoint['right']['ipv4'] }} esp {{ endpoint['left']['id'] }} -m tunnel -E 3des-cbc
-{{ endpoint['left']['key'] }};
+# ========== ==============================================
+add {{ endpoint['mine']['ipv4'] }} {{ endpoint['theirs']['ipv4'] }} esp {{ endpoint['mine']['tag'] }} -m tunnel -E 3des-cbc
+{{ endpoint['mine']['key'] }};
 
-add {{ endpoint['right']['ipv4'] }} {{ endpoint['left']['ipv4'] }} esp {{ endpoint['right']['id'] }} -m tunnel -E 3des-cbc
-{{ endpoint['right']['key'] }};
+add {{ endpoint['theirs']['ipv4'] }} {{ endpoint['mine']['ipv4'] }} esp {{ endpoint['theirs']['tag'] }} -m tunnel -E 3des-cbc
+{{ endpoint['theirs']['key'] }};
 
 {%  endfor %}
 
 
-# Security Policies Host to Host
+# Security Policies Host to Host: ==========
 {%  for int in ipsec %}
 {%      set endpoint = ipsec[int] %} 
 
-# Router-to-router
-spdadd {{ endpoint['left']['ipv4'] }}/32 {{ endpoint['right']['ipv4'] }}/32 any -P in ipsec
-        esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
+# ========== Router-to-router ============================
+
+spdadd {{ endpoint['mine']['ipv4'] }}/32 {{ endpoint['theirs']['ipv4'] }}/32 any -P out ipsec
+        esp/tunnel/{{ endpoint['mine']['ipv4'] }}-{{ endpoint['theirs']['ipv4'] }}/require;
         
-spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['left']['ipv4'] }}/32 any -P out ipsec
-        esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
+spdadd {{ endpoint['theirs']['ipv4'] }}/32 {{ endpoint['mine']['ipv4'] }}/32 any -P in ipsec
+        esp/tunnel/{{ endpoint['theirs']['ipv4'] }}-{{ endpoint['mine']['ipv4'] }}/require;
 
-{%      if endpoint['subnet'] is defined %}
-# Router-to-subnet
+{%      if endpoint['theirs']['network'] is defined %}
+# ========== Router-to-subnets ===========================
+{%      for network in endpoint['theirs']['network'] %}
 
-spdadd {{ endpoint['subnet'] }} {{ endpoint['right']['ipv4'] }}/32 any -P in ipsec
-        esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
+spdadd {{ network }} {{ endpoint['mine']['ipv4'] }}/32 any -P in ipsec
+        esp/tunnel/{{ endpoint['theirs']['ipv4'] }}-{{ endpoint['mine']['ipv4'] }}/require;
         
-spdadd {{ endpoint['right']['ipv4'] }}/32 {{ endpoint['subnet'] }} any -P out ipsec
-        esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
+spdadd {{ endpoint['mine']['ipv4'] }}/32 {{ network }} any -P out ipsec
+        esp/tunnel/{{ endpoint['mine']['ipv4'] }}-{{ endpoint['theirs']['ipv4'] }}/require;
 
+{%      endfor  %}
 {%      endif %}
 
-{%      for subnet in subnets %}
-# subnet-to-Router
-spdadd {{ subnet }} {{ endpoint['left']['ipv4'] }}/32 any -P out ipsec
-        esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
 
-spdadd {{ endpoint['left']['ipv4'] }}/32 {{ subnet }} any -P in ipsec
-        esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
+{%      if endpoint['mine']['network'] is defined %}
+# ========== Subnets-to-router ===========================
+{%      for network in endpoint['mine']['network'] %}
 
-{%          if endpoint['subnet'] is defined %}
-# subnet-to-subnet
-
-spdadd {{ endpoint['subnet'] }} {{ subnet }} any -P in ipsec
-        esp/tunnel/{{ endpoint['left']['ipv4'] }}-{{ endpoint['right']['ipv4'] }}/require;
+spdadd {{ network }} {{ endpoint['theirs']['ipv4'] }}/32 any -P out ipsec
+        esp/tunnel/{{ endpoint['mine']['ipv4'] }}-{{ endpoint['theirs']['ipv4'] }}/require;
         
-spdadd {{ subnet }} {{ endpoint['subnet'] }} any -P out ipsec
-        esp/tunnel/{{ endpoint['right']['ipv4'] }}-{{ endpoint['left']['ipv4'] }}/require;
+spdadd {{ endpoint['theirs']['ipv4'] }}/32 {{ network }} any -P in ipsec
+        esp/tunnel/{{ endpoint['theirs']['ipv4'] }}-{{ endpoint['mine']['ipv4'] }}/require;
 
-{%          endif %}
-{%      endfor %}
+{%      endfor  %}
+{%      endif %}
+
+{%      if endpoint['mine']['network'] is defined and endpoint['theirs']['network'] is defined%}
+# ========== Subnets-to-subnets ==========================
+{%      for left in endpoint['mine']['network'] %}
+{%              for right in endpoint['theirs']['network'] %}
+
+spdadd {{ left }} {{ right }} any -P out ipsec
+        esp/tunnel/{{ endpoint['mine']['ipv4'] }}-{{ endpoint['theirs']['ipv4'] }}/require;
+
+spdadd {{ right }} {{ left }} any -P in ipsec
+        esp/tunnel/{{ endpoint['theirs']['ipv4'] }}-{{ endpoint['mine']['ipv4'] }}/require;
+
+{%              endfor %}
+{%      endfor%}
+{%      endif %}
 {%  endfor %}
