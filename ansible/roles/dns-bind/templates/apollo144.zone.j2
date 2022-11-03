@@ -7,7 +7,11 @@ $TTL    604800
              604800 )   ; Negative Cache TTL
 ;
 ; name servers - NS records
-     IN      NS      ns1.apollo144.com.
+{% for dns in dns_servers %} 
+     IN      NS      {{ dns['domain'] }}
+{% endfor %}
 
 ; name servers - A records
-ns1.apollo144.com.          IN      A       192.168.25.10
+{% for dns in dns_servers %} 
+{{ dns['domain'] }}          IN      A       {{ dns['ipv4'] }}
+{% endfor %}

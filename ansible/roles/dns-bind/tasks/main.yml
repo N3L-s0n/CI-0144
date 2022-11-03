@@ -22,7 +22,7 @@
 
 - name: Write Apollo144 zone file
   ansible.builtin.template:
-    src: 'apollo144.zone'
+    src: 'apollo144.zone.j2'
     dest: '/var/named/apollo144.zone'
 
 - name: Enable DNS service

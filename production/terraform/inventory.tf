@@ -22,7 +22,7 @@ data "template_file" "ansible_dns_host" {
         ansible_user        = var.centos_username 
         ansible_password    = var.centos_password
         ip                  = esxi_guest.dns_server.ip_address
-        extra_vars          = ""
+        extra_vars          = "ismaster=${var.dns_is_master}"
     }
 
 }
@@ -94,6 +94,7 @@ resource "local_file" "ansible_variables" {
         dhcp_md5_key = var.dhcp_md5_key,
         dhcp_range_start = var.dhcp_range_start,
         dhcp_range_end = var.dhcp_range_end,
+        dns_servers = var.dns_servers,
     })
 
     filename = "${path.root}/variables.yml"

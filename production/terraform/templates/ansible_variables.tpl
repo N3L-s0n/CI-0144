@@ -52,5 +52,13 @@ networks:
     ipv4: "${dmz_network}"
     prefix: "24"
 
-dns_servers: []
+dns_servers:
+%{~ for dns in dns_servers ~}
+
+    - name: ${ dns.name }
+      domain: ${ dns.domain }
+      ipv4: ${ dns.ipv4 }
+%{~ endfor ~}
+
+
 dhcp_md5_key: "${dhcp_md5_key}"

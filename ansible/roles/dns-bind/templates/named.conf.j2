@@ -8,7 +8,7 @@ options {
     memstatistics-file   "/var/named/data/named_mem_stats.txt";
 
     allow-query { any; };
-    allow-transfer { localhost; {% for dns in dns_servers %} dns['ipv4']; {% endfor %}};
+    allow-transfer { localhost; {% for dns in dns_servers %} {{ dns['ipv4'] }}; {% endfor %}};
     recursion no;
 
     dnssec-enable yes;
@@ -31,7 +31,12 @@ logging {
 };
 
 zone "apollo144.com" IN {
+    {% if hostvars[inventory_hostname].ismaster == 'yes' %}
     type master;
+    {% else %}
+    type slave;
+    masters { dns_servers[0]['ipv4']; }
+    {% endif %}
     file "apollo144.zone";
     allow-update { none; };
 };

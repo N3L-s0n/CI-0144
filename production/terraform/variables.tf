@@ -64,6 +64,32 @@ variable "dns_ipv4" {
     type = string
     default = "192.168.25.10"
 }
+
+variable "dns_is_master" {
+    type = string
+    default = "yes"
+}
+
+variable "dns_servers" {
+    type = list
+    default = [
+        {
+            name = "viking"
+            domain = "ns1.apollo144.com."
+            ipv4 = "192.168.25.10"
+        },
+        {
+            name = "sputnik"
+            domain = "ns2.apollo144.com."
+            ipv4 = "192.168.9.10"
+        },
+        {
+            name = "serenity"
+            domain = "ns3.apollo144.com."
+            ipv4 = "192.168.14.10"
+        }
+    ]
+}
 # ====================================
 
 # DHCP Variables =====================
