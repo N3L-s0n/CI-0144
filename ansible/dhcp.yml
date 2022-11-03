@@ -1,0 +1,6 @@
+---
+- name: "dhcp.yml"
+  hosts: dhcp
+  roles:
+    - role: dhcp-failover
+      become: yes

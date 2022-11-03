@@ -37,25 +37,20 @@ networks:
     ipv4: "${wan_network}"
     prefix: "24"
 
-    forward_from: # FORWARD TO WAN
-      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "any", "dest_port" : "80"}
-      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "any", "dest_port" : "443"}
-  
-
   - name: "lan"
     type: "private"
+    router: "${firewall_private_ipv4}"
     ipv4: "${lan_network}"
     prefix: "24"
-
-    forward_from: # FORWARD TO LAN
-      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "80"}
-      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "443"}
-      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "3306"}
-      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "4567"}
-      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "4568"}
-      - { "src_network" : "lan", "src_addr" : "network", "src_port" : "any", "dest_addr" : "network", "dest_port" : "4444"}
+    dhcp:
+      router: "${firewall_private_ipv4}"
+      range_start: "${dhcp_range_start}"
+      range_end: "${dhcp_range_end}"
 
   - name: "dmz"
-    type: "public"
+    type: "private"
     ipv4: "${dmz_network}"
     prefix: "24"
+
+dns_servers: []
+dhcp_md5_key: "${dhcp_md5_key}"

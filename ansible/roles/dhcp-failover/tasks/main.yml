@@ -1,0 +1,62 @@
+---
+# tasks file for dhcp-failover role
+- name: Install dhcp
+  ansible.builtin.yum:
+    name: dhcp
+    state: latest
+  tags:
+    - never
+
+- name: Stop DHCPD service
+  ansible.builtin.service:
+    name: dhcpd
+    state: stopped
+
+- name: Copy config file for master
+  ansible.builtin.template:
+    src: "master-dhcpd.conf.j2"
+    dest: "/etc/dhcp/dhcpd.conf"
+    mode: "0600"
+  when: "inventory_hostname == 'dhcp1' " 
+
+- name: Copy config file for slave
+  ansible.builtin.template:
+    src: "slave-dhcpd.conf.j2"
+    dest: "/etc/dhcp/dhcpd.conf"
+    mode: "0600"
+  when: "inventory_hostname == 'dhcp2' " 
+
+- name: Configure firewall DHCPD
+  ansible.builtin.command:
+    cmd: "firewall-cmd --permanent --add-service=dhcp"
+
+- name: Configure firewall TCP 7911 OMAPI
+  ansible.builtin.command:
+    cmd: "firewall-cmd --permanent --add-port=7911/tcp"
+
+- name: Configure firewall TCP 7911 OMAPI
+  ansible.builtin.command:
+    cmd: "firewall-cmd --permanent --add-port=7911/tcp"
+
+- name: Configure firewall TCP 647
+  ansible.builtin.command:
+    cmd: "firewall-cmd --permanent --add-port=647/tcp"
+
+- name: Configure firewall UDP 694
+  ansible.builtin.command:
+    cmd: "firewall-cmd --permanent --add-port=694/udp"
+
+- name: Reload firewall
+  ansible.builtin.command:
+    cmd: "firewall-cmd --reload"
+
+- name: Enable DHCPD service
+  ansible.builtin.service:
+    name: dhcpd
+    enabled: yes
+
+- name: Start DHCPD service
+  ansible.builtin.service:
+    name: dhcpd
+    state: started
+

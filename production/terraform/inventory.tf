@@ -90,6 +90,10 @@ resource "local_file" "ansible_variables" {
         wan_network = var.wan_network,
         lan_network = var.lan_network,
         dmz_network = var.dmz_network,
+        firewall_private_ipv4 = var.firewall_private_ipv4,
+        dhcp_md5_key = var.dhcp_md5_key,
+        dhcp_range_start = var.dhcp_range_start,
+        dhcp_range_end = var.dhcp_range_end,
     })
 
     filename = "${path.root}/variables.yml"

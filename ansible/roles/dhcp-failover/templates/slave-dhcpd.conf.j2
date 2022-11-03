@@ -1,0 +1,38 @@
+#
+# DHCP Server Configuration file.
+#   see /usr/share/doc/dhcp*/dhcp.conf.example
+#   see dhcp.conf(5) man page
+#
+
+failover peer "failover-partner" {
+    secondary;
+    address {{ ansible_host }};
+    peer address {{ hostvars['dhcp1'].ansible_default_ipv4.address }};
+    max-response-delay 60;
+    max-unacked-updates 10;
+    load balance max seconds 3;
+}
+
+{% for network in networks %}
+{%  if network['name'] == 'lan' %}
+
+subnet {{ network['ipv4'] }} netmask 255.255.255.0 {
+    option domain-name-servers 8.8.8.8;
+    option routers {{ network['dhcp']['router'] }};
+    pool {
+        failover peer "failover-partner";
+        range {{ network['dhcp']['range_start'] }} {{ network['dhcp']['range_end']}};
+    }
+}
+
+{%  endif %}
+{% endfor %}
+
+omapi-port 7911;
+omapi-key omapi_key;
+
+key omapi_key {
+     algorithm hmac-md5;
+     secret {{ dhcp_md5_key }};
+}
+

@@ -71,6 +71,16 @@ variable "dhcps_ipv4" {
     type = list(string)
     default = ["192.168.24.20", "192.168.24.21"]
 }
+
+variable "dhcp_range_start" {
+    type = string
+    default = "192.168.24.100"
+}
+
+variable "dhcp_range_end" {
+    type = string
+    default = "192.168.24.200"
+}
 # ====================================
 
 # Network Variables ==================
