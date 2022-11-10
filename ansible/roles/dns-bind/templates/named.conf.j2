@@ -35,7 +35,7 @@ zone "apollo144.com" IN {
     type master;
     {% else %}
     type slave;
-    masters { dns_servers[0]['ipv4']; }
+    masters { {{ dns_servers[0]['ipv4'] }}; };
     {% endif %}
     file "apollo144.zone";
     allow-update { none; };
