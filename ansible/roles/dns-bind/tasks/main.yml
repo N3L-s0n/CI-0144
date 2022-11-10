@@ -7,8 +7,6 @@
   with_items:
     - bind
     - bind-utils
-  tags:
-    - never
 
 - name: Stop DNS service
   ansible.builtin.service:

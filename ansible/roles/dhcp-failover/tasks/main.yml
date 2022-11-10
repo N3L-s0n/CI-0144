@@ -4,8 +4,6 @@
   ansible.builtin.yum:
     name: dhcp
     state: latest
-  tags:
-    - never
 
 - name: Stop DHCPD service
   ansible.builtin.service:
