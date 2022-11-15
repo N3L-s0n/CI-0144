@@ -58,6 +58,7 @@ dns_servers:
     - name: ${ dns.name }
       domain: ${ dns.domain }
       ipv4: ${ dns.ipv4 }
+      gateway: ${ dns.gateway }
 %{~ endfor ~}
 
 
