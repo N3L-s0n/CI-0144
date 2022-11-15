@@ -33,10 +33,11 @@ logging {
 zone "apollo144.com" IN {
     {% if hostvars[inventory_hostname].ismaster == 'yes' %}
     type master;
+    file "apollo144.zone";
+    allow-update { none; };
     {% else %}
     type slave;
     masters { {{ dns_servers[0]['ipv4'] }}; };
-    {% endif %}
     file "apollo144.zone";
-    allow-update { none; };
+    {% endif %}
 };
