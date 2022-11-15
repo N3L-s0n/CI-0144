@@ -8,7 +8,9 @@ options {
     memstatistics-file   "/var/named/data/named_mem_stats.txt";
 
     allow-query { any; };
-    allow-transfer { localhost; {% for dns in dns_servers %} {{ dns['ipv4'] }}; {% endfor %}};
+    {% if hostvars[inventory_hostname].ismaster == 'yes' %}
+    allow-transfer { localhost; {{ ansible_host }}; {% for dns in dns_servers %} {{ dns['gateway'] }}; {% endfor %}};
+    {% else %}
     recursion no;
 
     dnssec-enable yes;
@@ -37,7 +39,7 @@ zone "apollo144.com" IN {
     allow-update { none; };
     {% else %}
     type slave;
-    masters { {{ dns_servers[0]['ipv4'] }}; };
+    masters { {{ dns_servers[0]['ipv4'] }}; {{ dns_servers[0]['gateway'] }}; };
     file "apollo144.zone";
     {% endif %}
 };
