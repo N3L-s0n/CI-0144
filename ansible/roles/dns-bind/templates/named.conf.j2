@@ -10,7 +10,7 @@ options {
     allow-query { any; };
     {% if hostvars[inventory_hostname].ismaster == 'yes' %}
     allow-transfer { localhost; {{ ansible_host }}; {% for dns in dns_servers %} {{ dns['gateway'] }}; {% endfor %}};
-    {% else %}
+    {% endif %}
     recursion no;
 
     dnssec-enable yes;
