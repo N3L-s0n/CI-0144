@@ -33,9 +33,13 @@
         jump: ACCEPT
       with_items: [ 500, 4500 ]
 
-    - name: Allow ESP encrypted data packets
+    - name: Allow INPUT ESP encrypted data packets
       ansible.builtin.command:
         cmd: "iptables -A INPUT -p esp -j ACCEPT"
+
+    - name: Allow OUTPUT ESP encrypted data packets
+      ansible.builtin.command:
+        cmd: "iptables -A OUTPUT -p esp -j ACCEPT"
 
     - name: Forward ESP ipsec policy IN
       ansible.builtin.command:
