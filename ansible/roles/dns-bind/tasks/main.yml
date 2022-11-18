@@ -23,6 +23,11 @@
     src: 'apollo144.zone.j2'
     dest: '/var/named/apollo144.zone'
 
+- name: Write Apollo144 reverse zone file
+  ansible.builtin.template:
+    src: '192.168.zone.j2'
+    dest: '/var/named/192.168.zone'
+
 - name: Enable DNS service
   ansible.builtin.service:
     name: named

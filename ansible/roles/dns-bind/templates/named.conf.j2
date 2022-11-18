@@ -43,3 +43,15 @@ zone "apollo144.com" IN {
     file "apollo144.zone";
     {% endif %}
 };
+
+zone "168.192.in-addr.arpa" {
+     {% if hostvars[inventory_hostname].ismaster == 'yes' %}
+    type master;
+    file "192.168.zone";
+    allow-update { none; };
+    {% else %}
+    type slave;
+    masters { {{ dns_servers[0]['ipv4'] }}; {{ dns_servers[0]['gateway'] }}; };
+    file "192.168.zone";
+    {% endif %}   
+};

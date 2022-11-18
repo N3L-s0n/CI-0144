@@ -11,7 +11,7 @@ $TTL    604800
      IN      NS      {{ dns['domain'] }}
 {% endfor %}
 
-; name servers - A records
-{% for dns in dns_servers %} 
-{{ dns['domain'] }}          IN      A       {{ dns['ipv4'] }}
+; PTR records
+{% for dns in dns_servers %}
+{{ dns['ipv4'].split('.')[2:4][::-1] | join('.') }}   IN      PTR     {{ dns['domain'] }}
 {% endfor %}
