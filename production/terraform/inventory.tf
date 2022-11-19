@@ -88,6 +88,7 @@ resource "local_file" "ansible_variables" {
     content = templatefile("${path.root}/templates/ansible_variables.tpl", {
         apollo_tunnel = var.apollo_tunnel,
         wan_network = var.wan_network,
+        nac_network = var.nac_network,
         lan_network = var.lan_network,
         dmz_network = var.dmz_network,
         firewall_private_ipv4 = var.firewall_private_ipv4,

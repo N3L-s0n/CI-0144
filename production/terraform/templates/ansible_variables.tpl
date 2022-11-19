@@ -37,6 +37,11 @@ networks:
     ipv4: "${wan_network}"
     prefix: "24"
 
+  - name: "nac"
+    type: "public"
+    ipv4: "${nac_network}"
+    prefix: "24"
+
   - name: "lan"
     type: "private"
     router: "${firewall_private_ipv4}"
@@ -51,6 +56,7 @@ networks:
     type: "private"
     ipv4: "${dmz_network}"
     prefix: "24"
+
 
 dns_servers:
 %{~ for dns in dns_servers ~}

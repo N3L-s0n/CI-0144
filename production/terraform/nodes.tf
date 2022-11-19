@@ -17,6 +17,10 @@ resource "esxi_guest" "firewall" {
     }
 
     network_interfaces {
+        virtual_network = esxi_portgroup.nac.name
+    }
+
+    network_interfaces {
         virtual_network = esxi_portgroup.lan.name
     }
 
@@ -29,6 +33,7 @@ resource "esxi_guest" "firewall" {
                     {
                         "firewall_public_ipv4"  = var.firewall_public_ipv4,
                         "firewall_private_ipv4" = var.firewall_private_ipv4,
+                        "firewall_nac_ipv4"     = var.firewall_nac_ipv4,
                         "firewall_dmz_ipv4"     = var.firewall_dmz_ipv4,
                         "firewall_gateway_ipv4" = var.firewall_gateway_ipv4
                     }))

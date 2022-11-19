@@ -66,7 +66,7 @@
 
 - name: Allow wan to use DNS on DMZ
   block:
-    - name: Forward UDP DNS from lan to DMZ 
+    - name: Forward UDP DNS from wan to DMZ 
       ansible.builtin.iptables:
         chain: FORWARD
         protocol: udp
@@ -78,6 +78,23 @@
       with_nested:
         - '{{ fnetworks | community.general.json_query("[?name==`wan`]") }}'
         - '{{ fnetworks | community.general.json_query("[?name==`dmz`]")}}'
+
+
+- name: Allow nac to use DNS on DMZ
+  block:
+    - name: Forward UDP DNS from wan to DMZ 
+      ansible.builtin.iptables:
+        chain: FORWARD
+        protocol: udp
+        in_interface: "{{ item[0].interface }}"
+        out_interface: "{{ item[1].interface }}"
+        destination_port: 53
+        ctstate: NEW
+        jump: ACCEPT
+      with_nested:
+        - '{{ fnetworks | community.general.json_query("[?name==`nac`]") }}'
+        - '{{ fnetworks | community.general.json_query("[?name==`dmz`]")}}'
+
 
 - name: Allow private networks to INTERNET
   block:
