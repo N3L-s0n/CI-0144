@@ -22,6 +22,22 @@
   roles:
     - role: ipsec-router
 
+  post_tasks:
+    - name: Add static routes
+      block:
+        - name: Add static route from private to NAC
+          ansible.builtin.command:
+            cmd: "nmcli connection modify 'System ens33' +ipv4.routes '192.168.0.0/16 172.24.5.1'"
+
+        - name: Reload connection
+          ansible.builtin.command:
+            cmd: "nmcli connection reload"
+
+        - name: Turn NAC connection up
+          ansible.builtin.command:
+            cmd: "nmcli connection up 'System ens33'"
+      become: yes
+
 - hosts: localhost
   connection: local
 
