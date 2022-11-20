@@ -9,7 +9,7 @@ options {
 
     allow-query { any; };
     {% if hostvars[inventory_hostname].ismaster == 'yes' %}
-    allow-transfer { localhost; {{ ansible_host }}; {% for dns in dns_servers %} {{ dns['gateway'] }}; {% endfor %}};
+    allow-transfer { localhost; {% for dns in dns_servers %} {{ dns['ipv4'] }}; {% endfor %}};
     {% endif %}
     recursion no;
 
@@ -39,7 +39,7 @@ zone "apollo144.com" IN {
     allow-update { none; };
     {% else %}
     type slave;
-    masters { {{ dns_servers[0]['ipv4'] }}; {{ dns_servers[0]['gateway'] }}; };
+    masters { {{ dns_servers[0]['ipv4'] }}; };
     file "apollo144.zone";
     {% endif %}
 };
@@ -51,7 +51,7 @@ zone "168.192.in-addr.arpa" {
     allow-update { none; };
     {% else %}
     type slave;
-    masters { {{ dns_servers[0]['ipv4'] }}; {{ dns_servers[0]['gateway'] }}; };
+    masters { {{ dns_servers[0]['ipv4'] }}; };
     file "192.168.zone";
     {% endif %}   
 };
