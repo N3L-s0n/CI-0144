@@ -10,7 +10,7 @@ resource "esxi_guest" "firewall" {
     numvcpus    = 1 
     memsize     = 1024
 
-    disk_store  = var.esxi_datastore
+    disk_store  = var.esxi["datastore"]
 
     network_interfaces {
         virtual_network = esxi_portgroup.wan.name
@@ -31,11 +31,11 @@ resource "esxi_guest" "firewall" {
     guestinfo = {
         "metadata" = base64gzip(templatefile("templates/cloud-init_firewall.tpl", 
                     {
-                        "firewall_public_ipv4"  = var.firewall_public_ipv4,
-                        "firewall_private_ipv4" = var.firewall_private_ipv4,
-                        "firewall_nac_ipv4"     = var.firewall_nac_ipv4,
-                        "firewall_dmz_ipv4"     = var.firewall_dmz_ipv4,
-                        "firewall_gateway_ipv4" = var.firewall_gateway_ipv4
+                        "firewall_public_ipv4"  = var.firewall["networks"]["wan"]["ipv4"],
+                        "firewall_private_ipv4" = var.firewall["networks"]["lan"]["ipv4"],
+                        "firewall_nac_ipv4"     = var.firewall["networks"]["nac"]["ipv4"],
+                        "firewall_dmz_ipv4"     = var.firewall["networks"]["dmz"]["ipv4"],
+                        "firewall_gateway_ipv4" = var.firewall["gateway"]["ipv4"]
                     }))
         "metadata.encoding" = "gzip+base64"
     }
@@ -46,7 +46,7 @@ resource "esxi_guest" "firewall" {
         connection {
             host        = self.ip_address
             type        = "ssh"
-            user        = var.centos_username
+            user        = var.centos["username"]
             password    = var.centos_password
         }
     }
@@ -61,7 +61,7 @@ resource "esxi_guest" "dns_server" {
     numvcpus    = 1 
     memsize     = 1024
 
-    disk_store  = var.esxi_datastore
+    disk_store  = var.esxi["datastore"]
 
     network_interfaces {
         virtual_network = esxi_portgroup.dmz.name
@@ -70,23 +70,23 @@ resource "esxi_guest" "dns_server" {
     guestinfo = {
         "metadata" = base64gzip(templatefile("templates/cloud-init_nodes.tpl",
                     {
-                        "node_private_ipv4" = var.dns_ipv4,
-                        "gateway_ipv4"      = var.firewall_dmz_ipv4
+                        "node_private_ipv4" = var.dns["ipv4"],
+                        "gateway_ipv4"      = var.firewall["networks"]["dmz"]["ipv4"]
                     }))
         "metadata.encoding" = "gzip+base64"
     }
 }
 
 resource "esxi_guest" "dhcp_servers" {
-    count       = length(var.dhcps_ipv4)
-    guest_name  = "dhcp${count.index + 1}"
+    count       = length(var.dhcp_cluster)
+    guest_name  = var.dhcp_cluster[count.index]["name"]
 
     ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
 
     numvcpus    = 1 
     memsize     = 1024
 
-    disk_store  = var.esxi_datastore
+    disk_store  = var.esxi["datastore"]
 
     network_interfaces {
         virtual_network = esxi_portgroup.lan.name
@@ -95,23 +95,23 @@ resource "esxi_guest" "dhcp_servers" {
     guestinfo = {
         "metadata" = base64gzip(templatefile("templates/cloud-init_nodes.tpl",
                     {
-                        "node_private_ipv4" = element(var.dhcps_ipv4, count.index),
-                        "gateway_ipv4"      = var.firewall_private_ipv4
+                        "node_private_ipv4" = var.dhcp_cluster[count.index]["ipv4"],
+                        "gateway_ipv4"      = var.firewall["networks"]["dmz"]["ipv4"]
                     }))
         "metadata.encoding" = "gzip+base64"
     }
 }
 
 resource "esxi_guest" "nodes" {
-    count       = length(var.nodes_private_ipv4)
-    guest_name  = "node${count.index + 1}"
+    count       = length(var.k8snodes)
+    guest_name  = var.k8snodes[count.index]["name"]
 
     ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
 
     numvcpus    = 1 
     memsize     = 1024
 
-    disk_store  = var.esxi_datastore
+    disk_store  = var.esxi["datastore"]
 
     network_interfaces {
         virtual_network = esxi_portgroup.lan.name
@@ -120,8 +120,8 @@ resource "esxi_guest" "nodes" {
     guestinfo = {
         "metadata" = base64gzip(templatefile("templates/cloud-init_nodes.tpl",
                     {
-                        "node_private_ipv4" = element(var.nodes_private_ipv4, count.index),
-                        "gateway_ipv4"      = var.firewall_private_ipv4
+                        "node_private_ipv4" = var.k8snodes[count.index]["ipv4"]
+                        "gateway_ipv4"      = var.firewall["networks"]["dmz"]["ipv4"]
                     }))
         "metadata.encoding" = "gzip+base64"
     }

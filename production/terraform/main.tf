@@ -8,9 +8,9 @@ terraform {
 }
 
 provider "esxi" {
-    esxi_hostname   = var.esxi_hostname
-    esxi_hostport   = var.esxi_hostport
-    esxi_username   = var.esxi_username
+    esxi_hostname   = var.esxi["ipv4"]
+    esxi_hostport   = var.esxi["port"]
+    esxi_username   = var.esxi["username"]
     esxi_password   = var.esxi_password
 }
 
