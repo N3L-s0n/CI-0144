@@ -48,6 +48,13 @@ variable "firewall_subnets" {
 }
 
 # Kubernetes VARIABLES
+variable "k8sserver" {
+    type = map
+    default = {
+        ipv4 = "192.168.25.20"
+    }
+}
+
 variable "k8snodes" {
     type = list
     default = [
@@ -68,6 +75,14 @@ variable "k8snodes" {
             ipv4 = "192.168.24.103"
         }
     ]
+}
+
+# FreeIPA
+variable "freeipa" {
+    type = map  
+    default = {
+        ipv4 = "192.168.24.20"
+    }
 }
 
 # DNS VARIABLES
@@ -102,11 +117,11 @@ variable "dhcp_cluster" {
     default = [
         {
             name = "dhcp1"
-            ipv4 = "192.168.24.20"
+            ipv4 = "192.168.24.10"
         },
         {
             name = "dhcp2"
-            ipv4 = "192.168.24.21"
+            ipv4 = "192.168.24.11"
         }
     ]
 }

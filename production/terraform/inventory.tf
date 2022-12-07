@@ -27,6 +27,36 @@ data "template_file" "ansible_dns_host" {
 
 }
 
+data "template_file" "ansible_k8sserver_host" {
+
+    template = file("${path.root}/templates/ansible_hosts.tpl")
+    depends_on = [esxi_guest.k8sserver]
+
+    vars = {
+        node_name           = esxi_guest.k8sserver.guest_name
+        ansible_user        = var.centos["username"]
+        ansible_password    = var.centos_password
+        ip                  = esxi_guest.k8sserver.ip_address
+        extra_vars          = ""
+    }
+
+}
+
+data "template_file" "ansible_freeipa_host" {
+
+    template = file("${path.root}/templates/ansible_hosts.tpl")
+    depends_on = [esxi_guest.freeipa]
+
+    vars = {
+        node_name           = esxi_guest.freeipa.guest_name
+        ansible_user        = var.centos["username"]
+        ansible_password    = var.centos_password
+        ip                  = esxi_guest.freeipa.ip_address
+        extra_vars          = ""
+    }
+
+}
+
 data "template_file" "ansible_dhcp_host" {
 
     count = length(var.dhcp_cluster)
@@ -67,6 +97,8 @@ data "template_file" "ansible_skeleton" {
     vars = {
         firewall_host_def   = data.template_file.ansible_firewall_host.rendered
         dns_host_def        = data.template_file.ansible_dns_host.rendered
+        k8sserver_host_def  = data.template_file.ansible_k8sserver_host.rendered
+        freeipa_host_def    = data.template_file.ansible_freeipa_host.rendered
         dhcp_host_def       = join("", data.template_file.ansible_dhcp_host.*.rendered)
         nodes_host_def      = join("", data.template_file.ansible_nodes_host.*.rendered)
     }

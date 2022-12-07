@@ -77,6 +77,54 @@ resource "esxi_guest" "dns_server" {
     }
 }
 
+resource "esxi_guest" "k8sserver" {
+    guest_name =  "k8sserver"
+
+    ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
+
+    numvcpus    = 1 
+    memsize     = 1024
+
+    disk_store  = var.esxi["datastore"]
+
+    network_interfaces {
+        virtual_network = esxi_portgroup.dmz.name
+    }
+
+    guestinfo = {
+        "metadata" = base64gzip(templatefile("templates/cloud-init_nodes.tpl",
+                    {
+                        "node_private_ipv4" = var.k8sserver["ipv4"],
+                        "gateway_ipv4"      = var.firewall["networks"]["dmz"]["ipv4"]
+                    }))
+        "metadata.encoding" = "gzip+base64"
+    }
+}
+
+resource "esxi_guest" "freeipa" {
+    guest_name =  "freeipa"
+
+    ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
+
+    numvcpus    = 2 
+    memsize     = 2048
+
+    disk_store  = var.esxi["datastore"]
+
+    network_interfaces {
+        virtual_network = esxi_portgroup.lan.name
+    }
+
+    guestinfo = {
+        "metadata" = base64gzip(templatefile("templates/cloud-init_nodes.tpl",
+                    {
+                        "node_private_ipv4" = var.freeipa["ipv4"],
+                        "gateway_ipv4"      = var.firewall["networks"]["dmz"]["ipv4"]
+                    }))
+        "metadata.encoding" = "gzip+base64"
+    }
+}
+
 resource "esxi_guest" "dhcp_servers" {
     count       = length(var.dhcp_cluster)
     guest_name  = var.dhcp_cluster[count.index]["name"]
