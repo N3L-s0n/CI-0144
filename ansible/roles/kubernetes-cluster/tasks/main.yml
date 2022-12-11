@@ -1,0 +1,39 @@
+---
+# tasks file for kubernetes-cluster role
+- name: Setup Master node
+  block:
+    - name: Initialize the cluster
+      ansible.builtin.shell:
+        cmd: kubeadm init --pod-network-cidr=10.244.0.0/16
+      args:
+        chdir: $HOME
+        creates: cluster_initialized.txt
+
+    - name: Create kubernetes config directory
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/.kube"
+        state: directory
+        mode: '0755'
+      become_user: "{{ ansible_user }}"
+
+    - name: Copy kubernetes config to directory created
+      ansible.builtin.copy:
+        src: "/etc/kubernetes/admin.conf"
+        dest: "/home/{{ ansible_user }}/.kube/config"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        remote_src: yes
+
+    - name: Install pod network
+      ansible.builtin.shell:
+        cmd: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml 
+      args:
+        chdir: $HOME
+      become_user: "{{ ansible_user }}"
+
+    - name: Get the token for joining worker nodes
+      ansible.builtin.shell:
+        cmd: kubeadm token create --print-join-command
+      register: kubernetes_join_command
+      become_user: "{{ ansible_user }}"
+  when: inventory_hostname == "master"

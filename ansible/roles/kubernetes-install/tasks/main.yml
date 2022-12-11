@@ -1,5 +1,5 @@
 ---
-# tasks file for docker-install role
+# tasks file for kubernetes-install role
 - name: Install Kubernetes
   block:
     - name: Add Kubernetes repo
@@ -15,8 +15,16 @@
         - kubelet
         - kubeadm
         - kubectl
-  tags:
-    - never
+
+- name: Enable kubelet service
+  ansible.builtin.service:
+    name: kubelet
+    enabled: yes
+
+- name: Start kubelet service
+  ansible.builtin.service:
+    name: kubelet
+    state: started
 
 - name: Set hostname
   ansible.builtin.hostname:

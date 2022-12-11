@@ -31,3 +31,5 @@
         - never
     - role: kubernetes-install
       become: yes
+    - role: kubernetes-cluster
+      become: yes
