@@ -16,3 +16,7 @@
   roles:
     - role: docker-install
       become: yes
+      tags:
+        - never
+    - role: kubernetes-cluster
+      become: yes

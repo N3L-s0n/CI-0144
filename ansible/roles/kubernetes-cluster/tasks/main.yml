@@ -1,0 +1,21 @@
+---
+# tasks file for docker-install role
+- name: Install Kubernetes
+  block:
+    - name: Add Kubernetes repo
+      ansible.builtin.copy:
+        src: "kubernetes.repo"
+        dest: "/etc/yum.repos.d/kubernetes.repo"
+
+    - name: Install kubernetes packages
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - kubelet
+        - kubeadm
+        - kubectl
+  tags:
+    - never
+
+  
