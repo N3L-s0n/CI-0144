@@ -1,6 +1,17 @@
 ---
 - name: "docker.yml"
   hosts: nodes
+
+  vars:
+    ports: 
+      - "6443/tcp"
+      - "2379/tcp"
+      - "2380/tcp"
+      - "10250/tcp"
+      - "10251/tcp"
+      - "10252/tcp"
+      - "10255/tcp"
+      - "8285/tcp"
   
   pre_tasks:
     - name: Node connection test
@@ -18,5 +29,5 @@
       become: yes
       tags:
         - never
-    - role: kubernetes-cluster
+    - role: kubernetes-install
       become: yes

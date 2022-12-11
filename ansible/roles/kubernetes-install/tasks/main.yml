@@ -1,0 +1,70 @@
+---
+# tasks file for docker-install role
+- name: Install Kubernetes
+  block:
+    - name: Add Kubernetes repo
+      ansible.builtin.copy:
+        src: "kubernetes.repo"
+        dest: "/etc/yum.repos.d/kubernetes.repo"
+
+    - name: Install kubernetes packages
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - kubelet
+        - kubeadm
+        - kubectl
+  tags:
+    - never
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}.apollo.lan"
+
+- name: Save hosts file
+  ansible.builtin.template:
+    src: "hosts.j2"
+    dest: "/etc/hosts"
+
+- name: Open ports on master
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+#   source: "{{ item.0.ipv4 }}/{{ item.0.prefix }}"
+# when: item.0.name == "lan"
+# with_nested:
+#   - "{{ networks }}"
+#   - "{{ ports }}"
+  when: inventory_hostname == "master"
+  with_items:
+    - "{{ ports }}"
+
+- name: Open ports on workers
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+  when: inventory_hostname != "master"
+  with_items:
+    - "10251/tcp"
+    - "10255/tcp"
+    - "8285/tcp"
+  
+- name: Configure IPtables
+  ansible.builtin.copy:
+    src: "k8s.conf"
+    dest: "/etc/sysctl.d/k8s.conf"
+
+- name: Set k8s.conf file
+  ansible.builtin.shell:
+    cmd: sysctl --system
+
+- name: Disable SELinux
+  ansible.builtin.shell:
+    cmd: "set enforce 0; sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config"
+
+- name: Disable SWAP
+  ansible.builtin.shell:
+    cmd: "sed -i '/swap/d' /etc/fstab; swapoff -a"
