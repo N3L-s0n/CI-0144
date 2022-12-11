@@ -1,0 +1,29 @@
+---
+# tasks file for docker-install role
+- name: Install dependencies
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+
+- name: Add Docker Repo
+  ansible.builtin.shell:
+    cmd: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+
+- name: Install docker
+  ansible.builtin.yum:
+    name: docker
+    state: latest
+
+- name: Enable docker service
+  ansible.builtin.service:
+    name: docker
+    enabled: yes
+
+- name: Start docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
