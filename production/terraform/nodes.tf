@@ -82,8 +82,8 @@ resource "esxi_guest" "k8sserver" {
 
     ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
 
-    numvcpus    = 1 
-    memsize     = 1024
+    numvcpus    = 2 
+    memsize     = 2048
 
     disk_store  = var.esxi["datastore"]
 
@@ -156,8 +156,8 @@ resource "esxi_guest" "nodes" {
 
     ovf_source = "../../images/packer/vmware-esxi-centos/centos-7.vmx"
 
-    numvcpus    = 1 
-    memsize     = 1024
+    numvcpus    = 2 
+    memsize     = 2048
 
     disk_store  = var.esxi["datastore"]
 
