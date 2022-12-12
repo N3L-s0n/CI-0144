@@ -138,6 +138,20 @@
       - '{{ fnetworks | community.general.json_query("[?type==`private`]") }}'
       - '{{ fnetworks | community.general.json_query("[?name==`wan`]")}}'
 
+  - name: Forward new packets for HTTP (80) inbound
+    ansible.builtin.iptables:
+      chain: FORWARD
+      protocol: tcp
+      destination_port: 80
+      in_interface: "{{ item[1].interface }}"
+      out_interface: "{{ item[0].interface }}"
+      ctstate: NEW
+      syn: match
+      jump: ACCEPT
+    with_nested:
+      - '{{ fnetworks | community.general.json_query("[?type==`private`]") }}'
+      - '{{ fnetworks | community.general.json_query("[?name==`wan`]")}}'
+
   - name: Forward new packets for HTTPS (443)
     ansible.builtin.iptables:
       chain: FORWARD
@@ -162,6 +176,33 @@
     with_nested:
       - '{{ fnetworks | community.general.json_query("[?type==`private`]") }}'
       - '{{ fnetworks | community.general.json_query("[?name==`wan`]")}}'
+
+- name: Forward port 8080 to freeipa machine
+  ansible.builtin.iptables:
+    table: nat
+    chain: PREROUTING
+    protocol: tcp
+    match: tcp
+    destination_port: 8080
+    to_destination: "{{ hostvars['freeipa'].ansible_host }}:80"
+    jump: DNAT
+
+- name: Forward port 8888 to k8sserver machine
+  ansible.builtin.iptables:
+    table: nat
+    chain: PREROUTING
+    protocol: tcp
+    match: tcp
+    destination_port: 8888
+    to_destination: "{{ hostvars['k8sserver'].ansible_host }}:80"
+    jump: DNAT
+
+- name: Return rule for port forward
+  ansible.builtin.iptables:
+    table: nat
+    chain: POSTROUTING
+    to_source: "{{ hostvars['firewall'].ansible_host }}"
+    jump: SNAT
 
 # Save rules
 - name: Save iptables in /etc/sysconfig/iptables
