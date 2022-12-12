@@ -25,10 +25,8 @@
       when: inventory_hostname == "master"
 
   roles:
-    - role: docker-install
+    - role: containerd-install
       become: yes
-      tags:
-        - never
     - role: kubernetes-install
       become: yes
     - role: kubernetes-cluster
